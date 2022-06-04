@@ -12,9 +12,11 @@
 module MaxelWithMSets
     (Max,
      MaxelWithMSets.fromList,  -- [Pix] -> Max
-     fromLists, -- [[Int]] -> Max
-     size,      -- Max -> Int
-     extent     -- Max -> Pix
+     fromLists,                -- [[Int]] -> Max
+     toList,                   -- Max -> [Pix]
+     MaxelWithMSets.transpose, -- Max -> Max
+     size,                     -- Max -> Int
+     extent                    -- Max -> Pix
     ) where 
 
 import PixelWithLists as Pixel
@@ -28,6 +30,9 @@ fromList ps = Mset.fromList ps
 fromLists :: [[Int]] -> Max
 fromLists [] = Mset.empty
 fromLists (x:xs) = Mset.insert (Pixel.fromList x) (fromLists xs)  
+
+toList :: Max -> [Pix]
+toList m = Mset.toList m
 
 ---------------------------------------------------------------
 -- Def: The size of a maxel is the number of its elements,
@@ -50,4 +55,12 @@ extent m = [r,c]
   where r = maximum [ row pixel | pixel <- Mset.elems m ]
         c = maximum [ col pixel | pixel <- Mset.elems m ]
 
+---------------------------------------------------------------
+-- Def: The transpose of a maxel m is the maxel m.T of transposes
+-- of its pixels. e.g.:
+--    Maxel.transpose (Maxel.fromLists [[1,1],[2,3],[2,3],[5,1]])
+--      == Maxel.fromLists [[1,1],[3,2],[3,2],[1,5]]
+---------------------------------------------------------------
 
+transpose :: Max -> Max
+transpose m = fromLists [Pixel.transpose pixel | pixel <- Mset.toList m]
